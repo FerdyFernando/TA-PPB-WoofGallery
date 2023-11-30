@@ -8,10 +8,12 @@ import swal from 'sweetalert';
 import Button from '../components/Button';
 
 const Home = ({ listBreeds, setListBreeds }) => {
+  const [originalList, setOriginalList] = useState([]);
+  const [filteredBreeds, setFilteredBreeds] = useState([]);
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const splitPage = 6;
-
-  const max = Math.round(listBreeds.length / splitPage);
+  const max = Math.round(filteredBreeds.length / splitPage);
 
   const next = () => {
     if (page < max) {
@@ -28,23 +30,25 @@ const Home = ({ listBreeds, setListBreeds }) => {
 
   const handleSearch = (breed) => {
     if (!breed) {
+      setFilteredBreeds(originalList);
       swal({
         text: 'the field is empty',
         icon: 'warning',
       });
     } else {
-      const search = listBreeds.filter((element) =>
-        element.toLowerCase().includes(breed)
+      const search = originalList.filter((element) =>
+        element.toLowerCase().includes(breed.toLowerCase())
       );
-      setListBreeds(search);
+      setFilteredBreeds(search);
     }
   };
 
   const handleOrganizeBreeds = () => {
-    const organize = listBreeds.map((breed) => breed);
-    setListBreeds(organize.reverse());
+    const organize = originalList.map((breed) => breed);
+    setFilteredBreeds(organize.reverse());
+    setOriginalList(organize);
     swal({
-      text: 'breeds dog reorganized successfully',
+      text: 'dog breeds reorganized successfully',
       icon: 'success',
     });
   };
@@ -52,6 +56,11 @@ const Home = ({ listBreeds, setListBreeds }) => {
   useEffect(() => {
     window.scrollTo({ top: 0 });
     setPage(1);
+  }, [filteredBreeds]);
+
+  useEffect(() => {
+    setOriginalList(listBreeds);
+    setFilteredBreeds(listBreeds);
   }, [listBreeds]);
 
   return (
@@ -71,10 +80,10 @@ const Home = ({ listBreeds, setListBreeds }) => {
         </h1>
 
         <div className='flex flex-col '>
-          {!listBreeds.length ? (
+          {!filteredBreeds.length ? (
             <Load />
           ) : (
-            listBreeds
+            filteredBreeds
               .slice((page - 1) * splitPage, (page - 1) * splitPage + splitPage)
               .map((breed) => {
                 return (
@@ -96,7 +105,7 @@ const Home = ({ listBreeds, setListBreeds }) => {
               })
           )}
         </div>
-        {listBreeds.length ? (
+        {filteredBreeds.length ? (
           <Pagination
             page={page}
             max={max}

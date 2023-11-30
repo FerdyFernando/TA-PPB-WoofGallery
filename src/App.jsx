@@ -10,7 +10,7 @@ import Picture from './views/Picture';
 import Error from './views/Error';
 
 import BottomBar from './components/BottomBar';
-
+import ImageView from './views/ImageView'; // Import the new ImageView component
 
 import axios from 'axios';
 
@@ -19,25 +19,22 @@ function App() {
   const [listBreeds, setListBreeds] = useState([]);
   
   const [isLoading, setIsLoading] = useState(true);
-
   const [bottomBarOpen, setBottomBarOpen] = useState(false);
 
   const getAllBreeds = async () => {
     const list = [];
 
     try {
-      await axios
-        .get('https://dog.ceo/api/breeds/list/all')
-        .then((response) => response.data.message)
-        .then((response) => {
-          Object.keys(response).forEach((result) => {
-            !response[result].length
-              ? list.push(result)
-              : response[result].filter((element) =>
-                  list.push(result + ' ' + element)
-                );
-          });
-        });
+      const response = await axios.get('https://dog.ceo/api/breeds/list/all');
+      const data = response.data.message;
+
+      Object.keys(data).forEach((result) => {
+        !data[result].length
+          ? list.push(result)
+          : data[result].forEach((element) =>
+              list.push(result + ' ' + element)
+            );
+      });
 
       setBreeds(list);
       setListBreeds(list);
@@ -45,8 +42,6 @@ function App() {
       console.log(err.message);
     }
   }; 
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,9 +56,6 @@ function App() {
       fetchData();
     }, delay);
   }, []);
-
-
-
 
   return (
     <div className="bg-[#1b2a2f] min-h-screen w-full">
@@ -80,8 +72,8 @@ function App() {
             <Route path="/breeds-list/random" element={<Random />} />
             <Route path="/breeds-list/:breed" element={<Show />}>
               <Route
-                path="/breeds-list/:breed/:picture"
-                element={<Picture />}
+                path=":index"
+                element={<ImageView />} 
               />
             </Route>
             <Route path="*" element={<Error />} />
